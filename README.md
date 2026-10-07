@@ -1,44 +1,113 @@
-# client
+# KGL Frontend
 
-This template should help get you started developing with Vue 3 in Vite.
+This is the frontend for Karibu Groceries Limited, a wholesale produce distribution management portal built with Vue 3 and Vite.
 
-## Recommended IDE Setup
+The application is designed to help the business manage operational workflows across procurement, sales, inventory, reporting, and user access from a single dashboard.
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+## What the project does
 
-## Recommended Browser Setup
+KGL Frontend provides a role-based business management system for the company:
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+- Landing page for the business and access entry points
+- Secure login flow with role-based access control
+- Executive dashboard for directors
+- Branch operations dashboard for managers
+- Sales tracking for sales agents
+- Procurement management for incoming stock and supplier records
+- Inventory visibility for stock levels and available produce
+- Intelligence/reporting views for business performance
+- User management for admin-level roles
 
-## Customize configuration
+## Main user roles
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+- Director: executive overview, company-level analytics, reporting, user management
+- Manager: branch operations, stock monitoring, procurement and sales oversight
+- Sales Agent: personal sales activity and sales record entry
 
-## Project Setup
+## Tech stack
 
-```sh
+- Vue 3
+- Vite
+- Vue Router
+- Pinia for state management
+- Axios for API requests
+- SweetAlert2 for alerts
+- ESLint + Oxlint for linting
+
+## Project structure
+
+```text
+src/
+  App.vue
+  main.js
+  assets/
+  router/
+    index.js
+  services/
+    api.js
+  stores/
+    auth.js
+  views/
+    DashboardLayout.vue
+    DashboardView.vue
+    HomeView.vue
+    IntelligenceView.vue
+    InventoryView.vue
+    LoginView.vue
+    ProcurementView.vue
+    SalesView.vue
+    UserManagementView.vue
+```
+
+## Features implemented in the UI
+
+- Role-aware route guards
+- Dashboard cards with summary metrics
+- Sales and procurement tables for operational tracking
+- Inventory and stock visibility
+- Business reporting and branch performance analytics
+- Local user session handling using browser storage
+
+## Getting started
+
+### Install dependencies
+
+```bash
 npm install
 ```
 
-### Compile and Hot-Reload for Development
+### Run the app in development mode
 
-```sh
+```bash
 npm run dev
 ```
 
-### Compile and Minify for Production
+### Build for production
 
-```sh
+```bash
 npm run build
 ```
 
-### Lint with [ESLint](https://eslint.org/)
+### Preview production build
 
-```sh
+```bash
+npm run preview
+```
+
+### Lint the project
+
+```bash
 npm run lint
 ```
+
+## Notes
+
+- The app expects a backend service to provide business data for procurement, sales, inventory, and user information.
+- Authentication state is currently maintained in local storage via the auth store.
+- The project is structured around the KGL operations workflow rather than a generic starter template.
+
+## Recommended development setup
+
+- VS Code
+- Vue extension support for editor tooling
+- Browser devtools for frontend debugging
