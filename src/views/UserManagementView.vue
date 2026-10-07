@@ -11,6 +11,8 @@ const showModal = ref(false);
 const isEditing = ref(false);
 const currentId = ref(null);
 // const userRole = inject('userRole');
+const isProtected = (user) => user.role === 'Director';
+
 
 // --- Toast System ---
 const toast = reactive({ show: false, message: '', type: 'success' });
@@ -83,6 +85,11 @@ const handleSave = async () => {
 };
 
 const handleDelete = async (id, name) => {
+    const target = users.value.find(u => u._id === id);
+    if (target && isProtected(target)){
+        triggerToast("The Director account be deleted", "danger");
+        return;
+    }
     const result = await Swal.fire({
         title: 'Delete User?',
         text: `Are you sure you want to remove ${name}?`,
@@ -155,7 +162,8 @@ onMounted(fetchUsers);
                         </div>
                         <div class="col-md-6">
                             <label class="form-label small fw-bold">Role</label>
-                            <select v-model="formData.role" class="form-select form-select-sm bg-light">
+                            <select v-model="formData.role" class="form-select form-select-sm bg-light"
+                            :disabled="isEditing && formData.role === 'Director'">
                                 <option value="Director">Director</option>
                                 <option value="Manager">Manager</option>
                                 <option value="Sales Agent">Sales Agent</option>
@@ -212,6 +220,8 @@ onMounted(fetchUsers);
                                     <i class="fa-solid fa-pen-to-square kgl-icon-sm"></i>
                                 </button>
                                 <button class="btn btn-sm btn-outline-danger kgl-action-btn"
+                                    :disabled="isProtected(user)"
+                                    :title="isProtected(user) ? 'The Director cannot be deleted' : 'Delete user'"
                                     @click="handleDelete(user._id, user.fullName)">
                                     <i class="fa-solid fa-trash kgl-icon-sm"></i>
                                 </button>
