@@ -11,6 +11,7 @@ const router = useRouter()
 const username = ref('')
 const password = ref('')
 const showPassword = ref(false)
+const isLoading = ref(false)
 
 // --- 2. Toast Logic ---
 const toastMessage = ref('')
@@ -28,11 +29,13 @@ const triggerToast = (msg, type) => {
 
 // --- 3. Login Logic ---
 const handleLogin = async () => {
+    if (isLoading.value) return //to block double submits
     if (!username.value.trim() || !password.value) {
         triggerToast("Please enter both username and password!", "error")
         return
     }
 
+    isLoading.value = true
     try {
         const response = await api.post("/user/login", {
             username: username.value,
@@ -45,13 +48,18 @@ const handleLogin = async () => {
             localStorage.setItem("token", result.token)
             localStorage.setItem("userDetails", JSON.stringify(result.user))
             authStore.setUser(result.user);
+            // keep isLoading true here so the button stays disabled until the redirect
             setTimeout(() => {
                 router.push('/admin/dashboard')
             }, 1000)
+        } else {
+            triggerToast(result?.message || "Login failed", "error")
+            isLoading.value = false
         }
     } catch (error) {
         console.error("Error:", error)
         triggerToast(error.response?.data?.message || "Server is offline or unreachable", "error")
+        isLoading.value = false
     }
 }
 </script>
@@ -88,7 +96,11 @@ const handleLogin = async () => {
                         class="eye-icon kgl-icon-sm"></i>
                 </div>
 
-                <button class="btn btn-sm btn-primary mt-2 w-100 kgl-login-btn" type="submit">Login</button>
+                <button class="btn btn-sm btn-primary mt-2 w-100 kgl-login-btn" type="submit" :disabled="isLoading">
+                    <span v-if="isLoading" class="spinner-border spinner-border-sm me-1" role="status"
+                        aria-hidden="true"></span>
+                    {{ isLoading ? 'Logging in...' : 'Login' }}
+                </button>
 
                 <p class="forgot-password mt-2 mb-0">
                     <a href="mailto:director.admin@kgl.com">Forgot Password?</a>
