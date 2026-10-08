@@ -107,7 +107,7 @@
                                     <td class="px-3 fw-bold text-success align-middle">{{
                                         row.cashRevenue.toLocaleString() }} UGX</td>
                                     <td class="px-3 fw-bold text-danger align-middle">{{ row.creditOwed.toLocaleString()
-                                    }} UGX</td>
+                                        }} UGX</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -291,49 +291,46 @@ const fetchData = async () => {
             return { data: { cashSales: [], creditSales: [], cashAggregations: [], creditAggregations: [] } };
         });
 
-        let procPromise = Promise.resolve({ data: { data: [], stats: [] } });
-        if (isDirector.value || isManager.value) {
-            procPromise = api.get('/procurements').catch(err => {
-                console.warn("Procurement access restricted.", err);
-                return { data: { data: [], stats: [] } };
-            });
-        }
+        const procPromise = api.get('/procurements').catch(err => {
+            console.warn("Could not fetch procurements.", err);
+            return { data: { data: [], stats: [] } };
+        });
 
         let totalsPromise = Promise.resolve({ data: { data: null } });
-        if (isDirector.value) {
-            totalsPromise = api.get('/user/director/totals').catch(err => {
-                console.error("Failed to fetch director totals", err);
-                return { data: { data: null } };
-            });
-        }
-
-        const [procRes, salesRes, totalsRes] = await Promise.all([procPromise, salesPromise, totalsPromise]);
-
-        procurements.value = procRes.data.data;
-        stats.value = procRes.data.stats || [];
-
-        if (isDirector.value) {
-            directorTotals.value = totalsRes?.data?.data || null;
-            directorSalesAgg.value = {
-                cash: salesRes?.data?.cashAggregations || [],
-                credit: salesRes?.data?.creditAggregations || [],
-            };
-        } else {
-            const branchCash = salesRes?.data?.cashSales || [];
-            const branchCredit = salesRes?.data?.creditSales || [];
-
-            if (isManager.value) {
-                branchCashSales.value = branchCash;
-                branchCreditSales.value = branchCredit;
-            } else if (isSalesAgent.value) {
-                const fullName = authStore.user?.fullName;
-                myCashSales.value = fullName ? branchCash.filter((s) => s.saleAgent?.trim().toLowerCase() === fullName.trim().toLowerCase()) : [];
-                myCreditSales.value = fullName ? branchCredit.filter((s) => s.saleAgent === fullName) : [];
-            }
-        }
-    } catch (err) {
-        console.error('Failed to load dashboard data', err);
+    if (isDirector.value) {
+        totalsPromise = api.get('/user/director/totals').catch(err => {
+            console.error("Failed to fetch director totals", err);
+            return { data: { data: null } };
+        });
     }
+
+    const [procRes, salesRes, totalsRes] = await Promise.all([procPromise, salesPromise, totalsPromise]);
+
+    procurements.value = procRes.data.data;
+    stats.value = procRes.data.stats || [];
+
+    if (isDirector.value) {
+        directorTotals.value = totalsRes?.data?.data || null;
+        directorSalesAgg.value = {
+            cash: salesRes?.data?.cashAggregations || [],
+            credit: salesRes?.data?.creditAggregations || [],
+        };
+    } else {
+        const branchCash = salesRes?.data?.cashSales || [];
+        const branchCredit = salesRes?.data?.creditSales || [];
+
+        if (isManager.value) {
+            branchCashSales.value = branchCash;
+            branchCreditSales.value = branchCredit;
+        } else if (isSalesAgent.value) {
+            const fullName = authStore.user?.fullName;
+            myCashSales.value = fullName ? branchCash.filter((s) => s.saleAgent?.trim().toLowerCase() === fullName.trim().toLowerCase()) : [];
+            myCreditSales.value = fullName ? branchCredit.filter((s) => s.saleAgent === fullName) : [];
+        }
+    }
+} catch (err) {
+    console.error('Failed to load dashboard data', err);
+}
 };
 const totalAssetValue = computed(() => {
     return stats.value.reduce((acc, curr) => acc + (curr.currentAssetValue || 0), 0);
